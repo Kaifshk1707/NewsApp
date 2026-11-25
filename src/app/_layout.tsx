@@ -1,11 +1,55 @@
-import { DarkTheme, DefaultTheme, Tabs, ThemeProvider } from 'expo-router';
-import { ComponentProps } from 'react';
+import { DarkTheme, DefaultTheme, router, Tabs, ThemeProvider } from 'expo-router';
+import { ShareIntentProvider, useShareIntentContext, type ShareIntent } from 'expo-share-intent';
+import { ComponentProps, useEffect, useRef } from 'react';
 import { ColorValue, Pressable, StyleSheet, Text, View, useColorScheme } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import { TabGlyph, useSocialPalette } from '@/components/social-ui';
+import { ReceivedShareProvider, useReceivedShare } from '@/contexts/received-share';
 import '@/i18n/i18n.config';
+
+function getShareSignature(shareIntent: ShareIntent) {
+  const files = shareIntent.files
+    ?.map((file) => `${file.mimeType}:${file.fileName}:${file.path}`)
+    .join('|');
+
+  return [shareIntent.type, shareIntent.text, shareIntent.webUrl, files].filter(Boolean).join('::');
+}
+
+function ShareIntentNavigator() {
+  const { hasShareIntent, shareIntent, resetShareIntent } = useShareIntentContext();
+  const { setReceivedShare } = useReceivedShare();
+  const lastShareSignature = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!hasShareIntent) {
+      return;
+    }
+
+    const hasFiles = Boolean(shareIntent.files?.length);
+    const hasContent = Boolean(shareIntent.text || shareIntent.webUrl || hasFiles);
+
+    if (!hasContent) {
+      resetShareIntent();
+      return;
+    }
+
+    const shareSignature = getShareSignature(shareIntent);
+
+    if (!shareSignature || shareSignature === lastShareSignature.current) {
+      resetShareIntent();
+      return;
+    }
+
+    lastShareSignature.current = shareSignature;
+    setReceivedShare(shareIntent);
+    router.replace('/receive-share');
+    resetShareIntent();
+  }, [hasShareIntent, resetShareIntent, setReceivedShare, shareIntent]);
+
+  return null;
+}
 
 function StandardTabIcon({
   routeName,
@@ -81,80 +125,92 @@ export default function TabLayout() {
   };
 
   return (
-    <ThemeProvider value={theme}>
-      <AnimatedSplashOverlay />
-      <Tabs
-        screenOptions={({ route }) => ({
-          headerShown: false,
-          tabBarActiveTintColor: palette.accent,
-          tabBarInactiveTintColor: '#8D8D95',
-          tabBarShowLabel: true,
-          tabBarStyle: {
-            position: 'absolute',
-            left: 16,
-            right: 16,
-            bottom: 14,
-            height: 88,
-            borderRadius: 34,
-            paddingTop: 12,
-            paddingBottom: 12,
-            paddingHorizontal: 8,
-            backgroundColor: palette.card,
-            borderTopWidth: 0,
-            borderWidth: 1,
-            borderColor: palette.border,
-            shadowColor: '#1180CC',
-            shadowOpacity: 0.14,
-            shadowRadius: 20,
-            shadowOffset: { width: 0, height: 10 },
-            elevation: 12,
-          },
-          tabBarItemStyle: {
-            paddingTop: 2,
-          },
-          tabBarLabelStyle: {
-            fontSize: 11,
-            fontWeight: '700',
-            marginTop: 2,
-          },
-          sceneStyle: {
-            backgroundColor: palette.background,
-          },
-          tabBarIcon: ({ color, focused }) => {
-            if (
-              route.name !== 'index' &&
-              route.name !== 'search' &&
-              route.name !== 'explore' &&
-              route.name !== 'profile'
-            ) {
-              return null;
-            }
+    <ShareIntentProvider options={{ scheme: 'testapp', resetOnBackground: false }}>
+      <ReceivedShareProvider>
+        <ThemeProvider value={theme}>
+          <ShareIntentNavigator />
+          <AnimatedSplashOverlay />
+          <Tabs
+            screenOptions={({ route }) => ({
+              headerShown: false,
+              tabBarActiveTintColor: palette.accent,
+              tabBarInactiveTintColor: '#8D8D95',
+              tabBarShowLabel: true,
+              tabBarStyle: {
+                position: 'absolute',
+                left: 16,
+                right: 16,
+                bottom: 14,
+                height: 88,
+                borderRadius: 34,
+                paddingTop: 12,
+                paddingBottom: 12,
+                paddingHorizontal: 8,
+                backgroundColor: palette.card,
+                borderTopWidth: 0,
+                borderWidth: 1,
+                borderColor: palette.border,
+                shadowColor: '#1180CC',
+                shadowOpacity: 0.14,
+                shadowRadius: 20,
+                shadowOffset: { width: 0, height: 10 },
+                elevation: 12,
+              },
+              tabBarItemStyle: {
+                paddingTop: 2,
+              },
+              tabBarLabelStyle: {
+                fontSize: 11,
+                fontWeight: '700',
+                marginTop: 2,
+              },
+              sceneStyle: {
+                backgroundColor: palette.background,
+              },
+              tabBarIcon: ({ color, focused }) => {
+                if (
+                  route.name !== 'index' &&
+                  route.name !== 'search' &&
+                  route.name !== 'explore' &&
+                  route.name !== 'profile'
+                ) {
+                  return null;
+                }
 
-            return <StandardTabIcon routeName={route.name} color={color} focused={focused} />;
-          },
-        })}>
-        <Tabs.Screen name="index" options={{ title: t('tabs.home') }} />
-        <Tabs.Screen name="search" options={{ title: t('tabs.search') }} />
-        <Tabs.Screen
-          name="add-post"
-          options={{
-            title: '',
-            tabBarButton: ({ onPress, accessibilityState }) => (
-              <AddPostTabButton onPress={onPress} accessibilityState={accessibilityState} />
-            ),
-          }}
-        />
-        <Tabs.Screen name="explore" options={{ title: t('tabs.explore') }} />
-        <Tabs.Screen name="profile" options={{ title: t('tabs.profile') }} />
-        <Tabs.Screen
-          name="post/[id]"
-          options={{
-            href: null,
-            tabBarStyle: { display: 'none' },
-          }}
-        />
-      </Tabs>
-    </ThemeProvider>
+                return <StandardTabIcon routeName={route.name} color={color} focused={focused} />;
+              },
+            })}>
+            <Tabs.Screen name="index" options={{ title: t('tabs.home') }} />
+            <Tabs.Screen name="search" options={{ title: t('tabs.search') }} />
+            <Tabs.Screen
+              name="add-post"
+              options={{
+                title: '',
+                tabBarButton: ({ onPress, accessibilityState }) => (
+                  <AddPostTabButton onPress={onPress} accessibilityState={accessibilityState} />
+                ),
+              }}
+            />
+            <Tabs.Screen name="explore" options={{ title: t('tabs.explore') }} />
+            <Tabs.Screen name="profile" options={{ title: t('tabs.profile') }} />
+            <Tabs.Screen
+              name="post/[id]"
+              options={{
+                href: null,
+                tabBarStyle: { display: 'none' },
+              }}
+            />
+            <Tabs.Screen
+              name="receive-share"
+              options={{
+                href: null,
+                tabBarStyle: { display: 'none' },
+              }}
+            />
+          </Tabs>
+        </ThemeProvider>
+      </ReceivedShareProvider>
+    </ShareIntentProvider>
   );
 }
 

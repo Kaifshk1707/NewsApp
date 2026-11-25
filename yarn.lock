@@ -1140,6 +1140,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@expo/env@npm:~2.3.1":
+  version: 2.3.1
+  resolution: "@expo/env@npm:2.3.1"
+  dependencies:
+    chalk: "npm:^4.0.0"
+    debug: "npm:^4.3.4"
+    getenv: "npm:^2.0.0"
+  checksum: 10c0/59461d681290f68700174836e39e40692dfaca99d6d2063c04b3d673dd892c8fa77890b7b193bcd3c91c3ca9f65ec67909d3891d8d480e52af13757f82c9093b
+  languageName: node
+  linkType: hard
+
 "@expo/expo-modules-macros-plugin@npm:0.2.2":
   version: 0.2.2
   resolution: "@expo/expo-modules-macros-plugin@npm:0.2.2"
@@ -4258,6 +4269,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"expo-constants@npm:~56.0.10, expo-constants@npm:~56.0.24":
+  version: 56.0.25
+  resolution: "expo-constants@npm:56.0.25"
+  dependencies:
+    "@expo/env": "npm:~2.3.1"
+  peerDependencies:
+    expo: "*"
+    react-native: "*"
+  checksum: 10c0/a552808e534db86d3818deb62f5d8de55dce88ba12eae102f6e01561efc40a3f2f4ab9068e661fb68e0d829a56baff6b80fa9f75be653edfd82d015867d0caca
+  languageName: node
+  linkType: hard
+
 "expo-constants@npm:~56.0.18":
   version: 56.0.18
   resolution: "expo-constants@npm:56.0.18"
@@ -4339,6 +4362,19 @@ __metadata:
     expo: "*"
     react: "*"
   checksum: 10c0/5137da41b6d45deca54f9bbbfbbb1e1c90b6459d489e0f8ce2cf5090cd5298f56947a5d4a4aec8ebd77c587978ce96f05ef86c8610a6e6b24718dc3ab2282802
+  languageName: node
+  linkType: hard
+
+"expo-linking@npm:~56.0.11":
+  version: 56.0.17
+  resolution: "expo-linking@npm:56.0.17"
+  dependencies:
+    expo-constants: "npm:~56.0.24"
+    invariant: "npm:^2.2.4"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 10c0/7d7830421620f1b0df1cf80279661276b784604e1c2122887781e731fe25668379a28e22e878b5176335002879780ac6c8168c8e17d9ba1fe5c06d6f4fdfa194
   languageName: node
   linkType: hard
 
@@ -4466,6 +4502,23 @@ __metadata:
   version: 56.0.5
   resolution: "expo-server@npm:56.0.5"
   checksum: 10c0/8665db31f2bec4d146f2c484ef652c5b604b7ea7c6454e65efff4742754cf981c4ab027a37901588d1794fc37fbeaac89c6024f92930fc0ebdf133e6fec67e80
+  languageName: node
+  linkType: hard
+
+"expo-share-intent@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "expo-share-intent@npm:7.0.0"
+  dependencies:
+    "@expo/config-plugins": "npm:~56.0.8"
+    expo-constants: "npm:~56.0.10"
+    expo-linking: "npm:~56.0.11"
+  peerDependencies:
+    expo: ^56
+    expo-constants: ">=56.0.10"
+    expo-linking: ">=56.0.13"
+    react: "*"
+    react-native: "*"
+  checksum: 10c0/9d36540a98a8ded5fe576c4ff2f93a46f44e3e09bc3b2e7963f2a0fa1209b3219ceca462dabf78e4c0316f2da7870448935bf932b72d9303f9e3dc5a45c72cb8
   languageName: node
   linkType: hard
 
@@ -8023,6 +8076,7 @@ __metadata:
     expo-image: "npm:~56.0.11"
     expo-linking: "npm:~56.0.14"
     expo-router: "npm:~56.2.11"
+    expo-share-intent: "npm:^7.0.0"
     expo-splash-screen: "npm:~56.0.10"
     expo-status-bar: "npm:~56.0.4"
     expo-symbols: "npm:~56.0.6"
